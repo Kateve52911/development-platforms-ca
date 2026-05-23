@@ -1,32 +1,45 @@
 import express, { Request, Response, NextFunction } from "express";
 import dotenv from "dotenv";
 dotenv.config();
-import { pool } from "./db/database"
-import {User} from "./types";
+import swaggerUi from "swagger-ui-express";
+import swaggerJsdoc from "swagger-jsdoc";
+import authRouter from "./routes/auth";
+import articleRouter from "./routes/articles";
+import userRouter from "./routes/users";
 const PORT = process.env.PORT || 4000;
-
-
 const app = express();
 
-app.get("/health", (req: Request, res: Response) => {
-    res.status(200).json({
-        message: "Welcome to the server!",
-    });
-})
+app.use(express.json())
 
-app.get("/users", async (req: Request, res: Response) => {
-    try {
-        const [rows] = await pool.execute("SELECT * FROM users");
-        const users = rows as User[];
+const swaggerOptions = {
+    definition: {
+        openapi: "3.0.0",
+        info: {
+            title: "News Platform API",
+            version: "1.0.0",
+            description: "A simple API for managing users and news articles",
+        },
+        servers: [{ url: `http://localhost:${PORT}` }],
+        components: {
+            securitySchemes: {
+                bearerAuth: {
+                    type: "http",
+                    scheme: "bearer",
+                    bearerFormat: "JWT",
+                }
+            }
+        }
+    },
+    apis: ["./src/routes/*.ts"],
+};
 
-        res.json(users);
-    } catch (error) {
-        console.error("Database query error:", error);
-        res.status(500).json({
-            error: "Failed to fetch users",
-        });
-    }
-})
+const swaggerSpec = swaggerJsdoc(swaggerOptions);
+
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
+app.use("/auth", authRouter);
+app.use("/articles", articleRouter);
+app.use("/users", userRouter);
 
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
