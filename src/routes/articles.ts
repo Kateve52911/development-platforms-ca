@@ -5,7 +5,8 @@ import {Article, ArticleWithUser, User} from "../types";
 import {articleSchema, articleUpdateSchema} from "../schemas/article/article";
 import {authenticateToken} from "../middleware/auth-validation";
 import {validateBody} from "../middleware/validation";
-import {verifyArticleOwnership} from "../middleware/articles";
+import {verifyArticleOwnership} from "../middleware/article-validation";
+
 
 const router = Router();
 
@@ -136,31 +137,6 @@ router.get("/", async (req, res) => {
    }
 })
 
-/**
- * @swagger
- * /articles/{id}:
- *   get:
- *     summary: Get an article by ID
- *     description: Returns a single article with its author's information.
- *     tags:
- *       - Articles
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: integer
- *         description: The article ID
- *     responses:
- *       200:
- *         description: Article found successfully
- *       400:
- *         description: Invalid article ID
- *       404:
- *         description: Article not found
- *       500:
- *         description: Failed to fetch article
- */
 router.get("/:id", async (req, res) => {
     try {
         const article_id: number = Number(req.params.id);

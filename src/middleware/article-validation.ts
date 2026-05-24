@@ -1,6 +1,6 @@
-import { Request, Response, NextFunction } from "express";
-import { pool } from "../db/database";
-import { Article } from "../types";
+import {pool} from "../db/database";
+import { Request, Response, NextFunction} from "express";
+import {Article} from "../types";
 
 export const verifyArticleOwnership = async (req: Request, res: Response, next: NextFunction) => {
     try {
